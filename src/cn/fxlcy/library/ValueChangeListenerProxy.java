@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
@@ -26,14 +27,14 @@ import javax.tools.ToolProvider;
 public class ValueChangeListenerProxy {
 	private final static Map<Class, Class> sClassMaps = new HashMap<>();
 	private final static Map<Class,Constructor>sConstructorMaps = new HashMap<>();
-	
-
+	final static AtomicInteger sProxyCount = new AtomicInteger(0);
 	
 	
 	public static <T> T newInstance(Class<T> clazz, OnValueChangeListener listener, Object... args) {
 		Class mapClazz = sClassMaps.get(clazz);
 		if(mapClazz == null){
-
+			sProxyCount.addAndGet(1);
+			
 			Template t = new Template();
 			t.setClassName(clazz);
 			t.setParams(args);
@@ -58,7 +59,7 @@ public class ValueChangeListenerProxy {
 			StandardJavaFileManager stdManager = jc.getStandardFileManager(null, null, null);
 			try (MemoryJavaFileManager manager = new MemoryJavaFileManager(stdManager)) {
 				JavaFileObject javaFileObject = manager.makeStringSource(
-						clazz.getSimpleName() + "Proxy.java", javaText);
+						clazz.getSimpleName() + sProxyCount.get() + "Proxy.java", javaText);
 				CompilationTask task = jc.getTask(null, manager, null, null, null, Arrays.asList(javaFileObject));
 				if (task.call()) {
 					classLoader = 
@@ -71,7 +72,7 @@ public class ValueChangeListenerProxy {
 
 			if(classLoader != null){
 				try {
-					mapClazz = (Class<T>) classLoader.loadClass("cn.fxlcy.library.proxy." + clazz.getSimpleName() + "Proxy");
+					mapClazz = (Class<T>) classLoader.loadClass("cn.fxlcy.library.proxy." + clazz.getSimpleName() + sProxyCount.get() + "Proxy");
 					sClassMaps.put(clazz, mapClazz);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();

@@ -47,7 +47,7 @@ final class Template {
 
     public void setClassName(Class<?> clazz) {
         replacePlaceHolder(PLACEHOLDER_BASE_CLASS_NAME, clazz.getName().replace("$", "."));
-        replacePlaceHolder(PLACEHOLDER_CLASS_NAME, clazz.getSimpleName() + "Proxy");
+        replacePlaceHolder(PLACEHOLDER_CLASS_NAME, clazz.getSimpleName() + ValueChangeListenerProxy.sProxyCount.get() + "Proxy");
     }
 
 
