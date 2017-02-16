@@ -1,0 +1,1 @@
+package cn.fxlcy.library.proxy;public class %className% extends %baseClassName%{private cn.fxlcy.library.OnValueChangeListener mListener;public %className%(cn.fxlcy.library.OnValueChangeListener listener%params1%){super(%params2%);mListener = listener;}%setMethods%}
